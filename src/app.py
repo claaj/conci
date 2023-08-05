@@ -1,14 +1,13 @@
 import os
-import tkinter
-import customtkinter as ct
+import customtkinter as ctk
 import polars as pl
-from tkinter import filedialog
-from CTkMessagebox import CTkMessagebox
+import CTkMessagebox as ctk_msg
+import tkinter as tk
 from conciliador import conciliador
 from utils import acortar_string
 
 
-class App(ct.CTk):
+class App(ctk.CTk):
     ruta_afip = ""
     ruta_tango = ""
     ruta_acumulado = ""
@@ -17,41 +16,41 @@ class App(ct.CTk):
 
     def __init__(self):
         super().__init__()
-        ct.set_appearance_mode("Dark")
+        ctk.set_appearance_mode("Dark")
         self.title("Percepciones AFIP - Tango")
         self.geometry("450x320")
 
-        self.switch_acumulado_var = ct.BooleanVar(value=False)
+        self.switch_acumulado_var = ctk.BooleanVar(value=False)
 
-        self.label_afip = ct.CTkLabel(
+        self.label_afip = ctk.CTkLabel(
             self,
             height=32,
             text="",
             justify="left",
         )
 
-        self.label_tango = ct.CTkLabel(
+        self.label_tango = ctk.CTkLabel(
             self,
             height=32,
             text="",
             justify="left",
         )
 
-        self.label_guardado = ct.CTkLabel(
+        self.label_guardado = ctk.CTkLabel(
             self,
             height=32,
             text="",
             justify="left",
         )
 
-        self.label_acumulado = ct.CTkLabel(
+        self.label_acumulado = ctk.CTkLabel(
             self,
             height=32,
             text="",
             justify="left",
         )
 
-        self.button_afip = ct.CTkButton(
+        self.button_afip = ctk.CTkButton(
             self,
             fg_color="transparent",
             border_width=1,
@@ -61,7 +60,7 @@ class App(ct.CTk):
             command=self.set_ruta_afip
         )
 
-        self.button_tango = ct.CTkButton(
+        self.button_tango = ctk.CTkButton(
             self,
             fg_color="transparent",
             border_width=1,
@@ -71,7 +70,7 @@ class App(ct.CTk):
             command=self.set_ruta_tango
         )
 
-        self.button_guardado = ct.CTkButton(
+        self.button_guardado = ctk.CTkButton(
             self,
             fg_color="transparent",
             border_width=1,
@@ -81,7 +80,7 @@ class App(ct.CTk):
             command=self.set_ruta_guardado
         )
 
-        self.button_acumulado = ct.CTkButton(
+        self.button_acumulado = ctk.CTkButton(
             self,
             fg_color="transparent",
             border_width=1,
@@ -92,7 +91,7 @@ class App(ct.CTk):
             command=self.set_ruta_acumulado
         )
 
-        self.switch_acumulado = ct.CTkSwitch(
+        self.switch_acumulado = ctk.CTkSwitch(
             master=self,
             text="Agregar tabla de acumulados",
             command=self.switch_acumulado,
@@ -101,7 +100,7 @@ class App(ct.CTk):
             offvalue=False,
         )
 
-        self.button_conciliar = ct.CTkButton(
+        self.button_conciliar = ctk.CTkButton(
             self,
             height=32,
             text="Conciliar",
@@ -139,7 +138,7 @@ class App(ct.CTk):
         print(self.ruta_acumulado)
 
     def set_ruta_guardado(self):
-        self.ruta_guardado = tkinter.filedialog.askdirectory(
+        self.ruta_guardado = tk.filedialog.askdirectory(
             initialdir=os.getcwd(),
             title="Seleccione carpeta de guardado"
         )
@@ -148,7 +147,7 @@ class App(ct.CTk):
 
     @staticmethod
     def _buscar_archivos() -> str:
-        return tkinter.filedialog.askopenfilename(
+        return tk.filedialog.askopenfilename(
             initialdir=os.getcwd(),
             title="Seleccionar archivo",
             filetypes=(
@@ -172,28 +171,28 @@ class App(ct.CTk):
                 tabla_tango.write_excel(self.ruta_guardado + "/tango.xlsx")
                 tabla_acumulado.write_excel(self.ruta_guardado + "/acumulado.xlsx")
                 print("Procesado")
-                CTkMessagebox(
+                ctk_msg.CTkMessagebox(
                     title="Operación exitosa",
                     message="Las planillas fueron procesadas con éxito.",
                     icon="check"
                 )
             except pl.ShapeError:
                 print("Fallo la operación.")
-                CTkMessagebox(
+                ctk_msg.CTkMessagebox(
                     title="Fallo la operación",
-                    message="No se pudo procesar correctamente las planillas.",
+                    message="No se pudo procesar correctkamente las planillas.",
                     icon="cancel",
                 )
             except FileNotFoundError:
                 print("No existe el archivo.")
-                CTkMessagebox(
+                ctk_msg.CTkMessagebox(
                     title="Error",
                     message="No existe el archivo o carpeta indicado.",
                     icon="cancel"
                 )
         else:
             print("No se pasaron todas las planillas necesarias.")
-            CTkMessagebox(
+            ctk_msg.CTkMessagebox(
                 title="Cuidado!",
                 icon="warning",
                 message="Debe pasar las planillas necesarias para poder operar.",
