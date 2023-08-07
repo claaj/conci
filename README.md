@@ -3,7 +3,7 @@
 
 Es una herramienta que ayuda a conciliar percepciones entre AFIP y Tango.
 
-![Captura desde 2023-08-04 17-20-57](https://github.com/claaj/conciliador-afip-tango/assets/102485147/ffdadb6b-7722-4586-af6a-2f727e27a5e0)
+![Captura desde 2023-08-04 17-20-57](https://github.com/claaj/conci/assets/102485147/565e7100-6f16-463e-bf89-a46e40f33994)
 
 ## ¿Qué hace este programa?
 Este programa toma dos tablas `(.xlsx)` del mismo mes una de AFIP y otra de Tango.
