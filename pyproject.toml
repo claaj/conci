@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "polar-conci"
+version = "0.1.0"
+description = ""
+authors = ["claaj <matias.cajal@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "conci"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+tk = "^0.1.0"
+customtkinter = "^5.2.0"
+polars = "^0.18.13"
+ctkmessagebox = "^2.4"
+pyinstaller = "^5.13.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

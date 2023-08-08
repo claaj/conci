@@ -1,9 +1,26 @@
-import os.path
+import os
 
 from utils import *
 
 
-def conciliador(ruta_afip: str, ruta_tango: str, ruta_acumulado: str) -> (pl.DataFrame, pl.DataFrame, pl.DataFrame):
+def conciliar(ruta_afip: str, ruta_tango: str, ruta_acumulado: str) -> (pl.DataFrame, pl.DataFrame, pl.DataFrame):
+    """Función encargada de realizar las operaciones de percepciones con las tablas.
+
+    Args:
+        ruta_afip (str): Ruta donde se encuentra la tabla de AFIP.
+        ruta_tango (str): Ruta donde se encuentra la tabla de Tango.
+        ruta_acumulado (str): Ruta donde se encuenta la tabla de acumualados.
+
+    Returns:
+        polars.DataFrame, polars.DataFrame, polars.DataFrame: Tupla de 3 DataFrames donde el primer elemento pertenece
+        al DataFrame de AFIP, el segundo al de Tango, y por ultimo el de acumulados.
+
+    Raises:
+        FileNotFoundError: Si ruta_afip o ruta_tango no existen.
+        polars.ShapeError: Si ocurre un error al operar con las tablas.
+
+    """
+
     if not os.path.exists(ruta_afip) or not os.path.exists(ruta_tango):
         raise FileNotFoundError
 

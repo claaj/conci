@@ -2,6 +2,15 @@ import polars as pl
 
 
 def setup_tabla_afip(ruta: str) -> pl.DataFrame:
+    """Funcion que elimina las columnas que no se utilizan y formatea una tabla AFIP a partir de una ruta.
+
+    Args:
+        ruta (str): Ruta donde se encuentra la tabla de AFIP.
+
+    Returns:
+        pl.DataFrame: Tabla de AFIP formateada lista para realizar las operaciones.
+
+    """
     df_afip = pl.read_excel(
         source=ruta,
         read_csv_options={"infer_schema_length": 1000}
@@ -37,6 +46,15 @@ def setup_tabla_afip(ruta: str) -> pl.DataFrame:
 
 
 def setup_tabla_tango(ruta: str) -> pl.DataFrame:
+    """Funcion que elimina las columnas que no se utilizan y formatea una tabla Tango a partir de una ruta.
+
+    Args:
+        ruta (str): Ruta donde se encuentra la tabla de Tango.
+
+    Returns:
+        polars.DataFrame: Tabla de Tango formateada lista para realizar las operaciones.
+
+    """
     df_tango = pl.read_excel(
         source=ruta,
         read_csv_options={"infer_schema_length": 1000}
@@ -71,6 +89,15 @@ def setup_tabla_tango(ruta: str) -> pl.DataFrame:
 
 
 def castear_columnas(tabla: pl.DataFrame) -> pl.DataFrame:
+    """Funcion encargada de indicar el tipo de data de cada columna de las tablas.
+
+    Args:
+        tabla (polars.DataFrame): Tabla a castear los valores de las columnas.
+
+    Returns:
+        polars.DataFrame: La tabla con los tipos de datos en las columnas correctos.
+
+    """
     return tabla.select(
         pl.col("CUIT").cast(pl.Utf8),
         pl.col('Razón Social').cast(pl.Utf8),
@@ -82,11 +109,31 @@ def castear_columnas(tabla: pl.DataFrame) -> pl.DataFrame:
 
 
 def eliminar_guiones_tango(tabla: pl.DataFrame) -> pl.DataFrame:
+    """Funcion encargada de eliminar los dos guiones de la columna cuit.
+
+    Args:
+        tabla (polars.DataFrame): Tabla a eliminar los guiones.
+
+    Returns:
+        (polars.DataFrame): La tabla con los guiones eliminados.
+
+    """
     tabla = _eliminar_guion_tango(tabla)
     return _eliminar_guion_tango(tabla)
 
 
 def importes_por_cuit(tabla_afip: pl.DataFrame, tabla_tango: pl.DataFrame, cuit: str) -> list:
+    """Funcion encargada de juntar todos los importes, sin repetir, presentes en ambas tablas para un cuit dado.
+
+    Args:
+        tabla_afip (polars.DataFrame): Tabla de AFIP.
+        tabla_tango (polars.DataFrame): Tabla de Tango.
+        cuit (str): Número de CUIT.
+
+    Returns:
+        (list): Lista con todos los importes sin repetir presentes en las tablas de AFIP y Tango asociados a un CUIT.
+
+    """
     lista_de_importes = []
     for importe_afip in _importes_tabla_por_cuit(tabla_afip, cuit):
         if importe_afip not in lista_de_importes:
@@ -100,10 +147,29 @@ def importes_por_cuit(tabla_afip: pl.DataFrame, tabla_tango: pl.DataFrame, cuit:
 
 
 def cantidad_filas(tabla: pl.DataFrame) -> int:
+    """Funcion que indica la cantidad de filas de una tabla.
+
+    Args:
+        tabla (polars.DataFrame) : Tabla para contar las filas.
+
+    Returns:
+        (int): Cantidad de filas presentes en la tabla.
+
+    """
     return tabla.select(pl.count()).item()
 
 
 def cuits_unicos_afip_tango(tabla_afip: pl.DataFrame, tabla_tango: pl.DataFrame) -> list:
+    """Funcion que retorna todos los cuit presentes en ambas tablas (AFIP y Tango), sin repetir.
+
+    Args:
+        tabla_afip (polars.DataFrame) : Tabla de AFIP.
+        tabla_tango (polars.DataFrame) : Tabla de Tango.
+
+    Returns:
+        (list): Una lista con todos los cuits presentes en ambas tablas. Sin repetir.
+
+    """
     cuits_afip = _lista_de_cuits(tabla_afip)
     cuits_tango = _lista_de_cuits(tabla_tango)
     lista_unicos = []
@@ -121,6 +187,16 @@ def cuits_unicos_afip_tango(tabla_afip: pl.DataFrame, tabla_tango: pl.DataFrame)
 
 
 def acortar_string(string: str) -> str:
+    """Funcion que acorta un string de largo mayor a 30 caracteres.
+    Si es recortado de se le agregan 3 puntos ("...") adelante.
+
+    Args:
+        string (str): Cadena a la cual se la operara.
+
+    Returns:
+        (str): La cadena procesada.
+
+    """
     if len(string) < 30:
         return string
     else:
@@ -129,12 +205,39 @@ def acortar_string(string: str) -> str:
 
 
 def _eliminar_guion_tango(tabla: pl.DataFrame) -> pl.DataFrame:
+    """Funcion que elimina un guion de la columna CUIT.
+
+    Args:
+        tabla (polars.DataFrame) : Tabla a eliminar los guiones en su columna CUIT.
+
+    Returns:
+        (polars.DataFrame): Tabla formateada como se menciono anteriormente.
+
+    """
     return tabla.with_columns(pl.col('CUIT').str.replace("-", ""))
 
 
 def _lista_de_cuits(tabla: pl.DataFrame) -> list:
+    """Funcion que retorna la lista de los CUITs presentes en una tabla.
+
+    Args:
+        tabla (polars.DataFrame) : Tabla a extraer los CUITs.
+
+    Returns:
+        (list): Lista de CUITs presentes en la tabla.
+
+    """
     return tabla.select(['CUIT']).unique().get_column('CUIT').to_list()
 
 
 def _importes_tabla_por_cuit(tabla: pl.DataFrame, cuit: str) -> list:
+    """Funcion que retorna una lista con los importes asociados en cuit.
+    Args:
+        tabla (polars.DataFrame): Tabla en la cual buscar.
+        cuit (str): CUIT con el cual se filtraran todos los importes en la tabla.
+
+    Returns:
+        (list): Una lista con todos los importes presentes en la tabla.
+
+    """
     return tabla.filter(pl.col("CUIT") == cuit).select(['Importe']).unique().get_column('Importe').to_list()
