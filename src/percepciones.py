@@ -3,7 +3,9 @@ import os
 from utils import *
 
 
-def conciliar(ruta_afip: str, ruta_tango: str, ruta_acumulado: str) -> (pl.DataFrame, pl.DataFrame, pl.DataFrame):
+def conciliar(
+    ruta_afip: str, ruta_tango: str, ruta_acumulado: str
+) -> (pl.DataFrame, pl.DataFrame, pl.DataFrame):
     """Función encargada de realizar las operaciones de percepciones con las tablas.
 
     Args:
@@ -37,14 +39,16 @@ def conciliar(ruta_afip: str, ruta_tango: str, ruta_acumulado: str) -> (pl.DataF
         df_afip = df_afip.vstack(acumulado_afip)
         df_tango = df_tango.vstack(acumulado_tango)
     except:
-        acumulado = pl.DataFrame({
-            "CUIT": [],
-            "Razón Social": [],
-            "Importe": [],
-            "Número Comprobante": [],
-            "Fecha Comprobante": [],
-            "Origen": [],
-        })
+        acumulado = pl.DataFrame(
+            {
+                "CUIT": [],
+                "Razón Social": [],
+                "Importe": [],
+                "Número Comprobante": [],
+                "Fecha Comprobante": [],
+                "Origen": [],
+            }
+        )
     finally:
         acumulado = castear_columnas(acumulado)
 
@@ -53,20 +57,30 @@ def conciliar(ruta_afip: str, ruta_tango: str, ruta_acumulado: str) -> (pl.DataF
     for cuit in cuits_unicos:
         importes = importes_por_cuit(df_tango, df_afip, cuit)
         for importe in importes:
-            filtro_tango = df_tango.filter((pl.col("CUIT") == cuit) & (pl.col("Importe") == importe))
-            filtro_afip = df_afip.filter((pl.col("CUIT") == cuit) & (pl.col("Importe") == importe))
+            filtro_tango = df_tango.filter(
+                (pl.col("CUIT") == cuit) & (pl.col("Importe") == importe)
+            )
+            filtro_afip = df_afip.filter(
+                (pl.col("CUIT") == cuit) & (pl.col("Importe") == importe)
+            )
 
-            diferencia_cantidad = cantidad_filas(filtro_tango) - cantidad_filas(filtro_afip)
+            diferencia_cantidad = cantidad_filas(filtro_tango) - cantidad_filas(
+                filtro_afip
+            )
             print(diferencia_cantidad)
 
             if diferencia_cantidad > 0:
                 acumulado = acumulado.vstack(
-                    filtro_tango.with_row_count(name="num_fila").filter(
-                        pl.col("num_fila") < diferencia_cantidad).drop("num_fila"))
+                    filtro_tango.with_row_count(name="num_fila")
+                    .filter(pl.col("num_fila") < diferencia_cantidad)
+                    .drop("num_fila")
+                )
 
             elif diferencia_cantidad < 0:
                 acumulado = acumulado.vstack(
-                    filtro_afip.with_row_count(name="num_fila").filter(
-                        pl.col("num_fila") < abs(diferencia_cantidad)).drop("num_fila"))
+                    filtro_afip.with_row_count(name="num_fila")
+                    .filter(pl.col("num_fila") < abs(diferencia_cantidad))
+                    .drop("num_fila")
+                )
 
     return df_afip, df_tango, acumulado

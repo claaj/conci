@@ -17,6 +17,7 @@ class App(ctk.CTk):
         ruta_guardado (str): Ruta donde se guardaran las planillas procesados.
 
     """
+
     ruta_afip = ""
     ruta_tango = ""
     ruta_acumulado = ""
@@ -65,7 +66,7 @@ class App(ctk.CTk):
             width=200,
             height=32,
             text="Elegir tabla AFIP",
-            command=self.set_ruta_afip
+            command=self.set_ruta_afip,
         )
 
         self.button_tango = ctk.CTkButton(
@@ -75,7 +76,7 @@ class App(ctk.CTk):
             width=200,
             height=32,
             text="Elegir tabla Tango",
-            command=self.set_ruta_tango
+            command=self.set_ruta_tango,
         )
 
         self.button_guardado = ctk.CTkButton(
@@ -85,7 +86,7 @@ class App(ctk.CTk):
             width=200,
             height=32,
             text="Elegir carpeta de guardado",
-            command=self.set_ruta_guardado
+            command=self.set_ruta_guardado,
         )
 
         self.button_acumulado = ctk.CTkButton(
@@ -96,7 +97,7 @@ class App(ctk.CTk):
             height=32,
             text="Elegir tabla de acumulados",
             state="disabled",
-            command=self.set_ruta_acumulado
+            command=self.set_ruta_acumulado,
         )
 
         self.switch_acumulado = ctk.CTkSwitch(
@@ -109,10 +110,7 @@ class App(ctk.CTk):
         )
 
         self.button_conciliar = ctk.CTkButton(
-            self,
-            height=32,
-            text="Conciliar",
-            command=self.conciliar_percepciones
+            self, height=32, text="Conciliar", command=self.conciliar_percepciones
         )
 
         self.button_afip.grid(row=1, column=1, padx=(20, 5), pady=(10, 10))
@@ -151,8 +149,7 @@ class App(ctk.CTk):
     def set_ruta_guardado(self):
         """Funcion que modifica ruta_guardado a partir de una ventana de dialogo."""
         self.ruta_guardado = tk.filedialog.askdirectory(
-            initialdir=os.getcwd(),
-            title="Seleccione carpeta de guardado"
+            initialdir=os.getcwd(), title="Seleccione carpeta de guardado"
         )
         self.label_guardado.configure(text=acortar_string(self.ruta_guardado))
         print(self.ruta_guardado)
@@ -167,9 +164,8 @@ class App(ctk.CTk):
         return tk.filedialog.askopenfilename(
             initialdir=os.getcwd(),
             title="Seleccionar archivo",
-            filetypes=(
-                ("Excel 2007-365", "*.xlsx*"),
-                ("Todos", "*.*")))
+            filetypes=(("Excel 2007-365", "*.xlsx*"), ("Todos", "*.*")),
+        )
 
     def switch_acumulado(self):
         """Funcion que controla el switch de la app."""
@@ -181,11 +177,16 @@ class App(ctk.CTk):
 
     def conciliar_percepciones(self):
         """Funcion que ejecuta las operaciones para conciliar las percepciones."""
-        if self.ruta_afip != "" and self.ruta_tango != "" and self.ruta_guardado != "" and (
-                not self.switch_acumulado_var.get() or self.ruta_acumulado != ""):
+        if (
+            self.ruta_afip != ""
+            and self.ruta_tango != ""
+            and self.ruta_guardado != ""
+            and (not self.switch_acumulado_var.get() or self.ruta_acumulado != "")
+        ):
             try:
                 (tabla_afip, tabla_tango, tabla_acumulado) = percep.conciliar(
-                    self.ruta_afip, self.ruta_tango, self.ruta_acumulado)
+                    self.ruta_afip, self.ruta_tango, self.ruta_acumulado
+                )
                 tabla_afip.write_excel(self.ruta_guardado + "/afip.xlsx")
                 tabla_tango.write_excel(self.ruta_guardado + "/tango.xlsx")
                 tabla_acumulado.write_excel(self.ruta_guardado + "/acumulado.xlsx")
@@ -193,7 +194,7 @@ class App(ctk.CTk):
                 ctkMsg.CTkMessagebox(
                     title="Operación exitosa",
                     message="Las planillas fueron procesadas con éxito.",
-                    icon="check"
+                    icon="check",
                 )
             except pl.ShapeError:
                 print("Fallo la operación.")
@@ -207,7 +208,7 @@ class App(ctk.CTk):
                 ctkMsg.CTkMessagebox(
                     title="Error",
                     message="No existe el archivo o carpeta indicado.",
-                    icon="cancel"
+                    icon="cancel",
                 )
         else:
             print("No se pasaron todas las planillas necesarias.")
