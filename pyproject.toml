@@ -13,6 +13,8 @@ customtkinter = "^5.2.0"
 polars = "^0.18.13"
 ctkmessagebox = "^2.4"
 pyinstaller = "^5.13.0"
+xlsx2csv = "^0.8.1"
+xlsxwriter = "^3.1.2"
 
 
 [build-system]
