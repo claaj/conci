@@ -212,6 +212,81 @@ def acortar_string(string: str) -> str:
         return "..." + string[numero:]
 
 
+def fecha_para_carpeta(tabla_afip: pl.DataFrame) -> str:
+    """Funcion que obtiene la fecha a partir de la tabla de AFIP. Retorna la fecha en formato AAAA/MM.
+
+    Args:
+        tabla_afip (pl.DataFrame): Tabla de AFIP.
+
+    Returns:
+        (str): Un cadena con la fecha en el formato AAAA/MM
+    """
+    fecha_string = (
+        tabla_afip.select(["Fecha Comprobante"])
+        .get_column("Fecha Comprobante")
+        .head(1)
+        .to_list()[0]
+    )
+
+    fecha_split = fecha_string.split("/")
+    print(fecha_split)
+
+    return f"{fecha_split[2]}-{fecha_split[1]}"
+
+
+def checkear_importe_total(
+    cuit: str, tabla_afip: pl.DataFrame, tabla_tango: pl.DataFrame
+) -> bool:
+    """Funcion que verifica que la suma de todos los valores de un CUIT pertenecientes a AFIP es igual a la suma de
+    todos los valores de Tango pertenecientes a ese mismo CUIT.
+
+    Args:
+        cuit (str): Numero de CUIT.
+        tabla_afip (pl.DataFrame): Tabla de AFIP.
+        tabla_tango (pl.DataFrame): Tabla de Tango.
+
+    Returns:
+        (bool): True si las sumas coinciden, False si no lo hacen.
+    """
+    importes_afip = (
+        tabla_afip.filter(pl.col("CUIT") == cuit)
+        .select(["Importe"])
+        .get_column("Importe")
+        .to_list()
+    )
+
+    importes_tango = (
+        tabla_tango.filter(pl.col("CUIT") == cuit)
+        .select(["Importe"])
+        .get_column("Importe")
+        .to_list()
+    )
+
+    total_afip = _sumar_contenidos_lista(importes_afip)
+    total_tango = _sumar_contenidos_lista(importes_tango)
+
+    print(importes_afip)
+    print(importes_tango)
+
+    print(total_afip == total_tango)
+    return total_afip == total_tango
+
+
+def _sumar_contenidos_lista(lista: list) -> float:
+    """Funcion que suma todos los contenidos de una lista.
+
+    Args:
+        lista (list): Lista con los contenidos a sumar.
+
+    Returns:
+        (float): La suma de todos los valores contenidos en lista.
+    """
+    total = 0
+    for numero in lista:
+        total += numero
+    return total
+
+
 def _eliminar_guion_tango(tabla: pl.DataFrame) -> pl.DataFrame:
     """Funcion que elimina un guion de la columna CUIT.
 

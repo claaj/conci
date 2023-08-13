@@ -4,7 +4,7 @@ import polars as pl
 import CTkMessagebox as ctkMsg
 import tkinter as tk
 import percepciones as percep
-from utils import acortar_string
+from utils import acortar_string, fecha_para_carpeta
 
 
 class App(ctk.CTk):
@@ -187,9 +187,15 @@ class App(ctk.CTk):
                 (tabla_afip, tabla_tango, tabla_acumulado) = percep.conciliar(
                     self.ruta_afip, self.ruta_tango, self.ruta_acumulado
                 )
-                tabla_afip.write_excel(self.ruta_guardado + "/afip.xlsx")
-                tabla_tango.write_excel(self.ruta_guardado + "/tango.xlsx")
-                tabla_acumulado.write_excel(self.ruta_guardado + "/acumulado.xlsx")
+                carpeta_guardado = (
+                    f"{self.ruta_guardado}/{fecha_para_carpeta(tabla_afip)}"
+                )
+
+                os.mkdir(carpeta_guardado)
+
+                tabla_afip.write_excel(f"{carpeta_guardado}/afip.xlsx")
+                tabla_tango.write_excel(f"{carpeta_guardado}/tango.xlsx")
+                tabla_acumulado.write_excel(f"{carpeta_guardado}/acumulado.xlsx")
                 print("Procesado")
                 ctkMsg.CTkMessagebox(
                     title="Operación exitosa",
