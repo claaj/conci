@@ -1,115 +1,5 @@
+import os
 import polars as pl
-
-
-def setup_tabla_afip(ruta: str) -> pl.DataFrame:
-    """Funcion que elimina las columnas que no se utilizan y formatea una tabla AFIP a partir de una ruta.
-
-    Args:
-        ruta (str): Ruta donde se encuentra la tabla de AFIP.
-
-    Returns:
-        pl.DataFrame: Tabla de AFIP formateada lista para realizar las operaciones.
-
-    """
-    df_afip = pl.read_excel(source=ruta, read_csv_options={"infer_schema_length": 1000})
-
-    df_afip = df_afip.drop(
-        [
-            "Impuesto",
-            "Descripción Impuesto",
-            "Régimen",
-            "Descripción Régimen",
-            "Fecha Ret./Perc.",
-            "Número Certificado",
-            "Descripción Operación",
-            "Descripción Comprobante",
-            "Fecha Registración DJ Ag.Ret.",
-        ]
-    )
-
-    df_afip = df_afip.rename(
-        {
-            "CUIT Agente Ret./Perc.": "CUIT",
-            "Denominación o Razón Social": "Razón Social",
-            "Importe Ret./Perc.": "Importe",
-            "Número Comprobante": "Número Comprobante",
-            "Fecha Comprobante": "Fecha Comprobante",
-        }
-    )
-
-    df_afip = df_afip.select(sorted(df_afip.columns))
-
-    df_afip = df_afip.with_columns(pl.lit("AFIP").alias("Origen"))
-
-    df_afip = castear_columnas(df_afip)
-
-    return df_afip
-
-
-def setup_tabla_tango(ruta: str) -> pl.DataFrame:
-    """Funcion que elimina las columnas que no se utilizan y formatea una tabla Tango a partir de una ruta.
-
-    Args:
-        ruta (str): Ruta donde se encuentra la tabla de Tango.
-
-    Returns:
-        polars.DataFrame: Tabla de Tango formateada lista para realizar las operaciones.
-
-    """
-    df_tango = pl.read_excel(
-        source=ruta, read_csv_options={"infer_schema_length": 1000}
-    )
-
-    df_tango = df_tango.drop(
-        [
-            "COD_IMPUES",
-            "DESCRIP",
-            "FECH_CONT",
-            "COD_PROVE",
-            "T_COMP",
-            "IMP_TOTAL",
-            "JURISDIC",
-        ]
-    )
-
-    df_tango = df_tango.rename(
-        {
-            "CUIT": "CUIT",
-            "FECH_COMP": "Fecha Comprobante",
-            "RAZON_SOC": "Razón Social",
-            "N_COMP": "Número Comprobante",
-            "IMPORTE": "Importe",
-        }
-    )
-
-    df_tango = df_tango.select(sorted(df_tango.columns))
-
-    df_tango = df_tango.with_columns(pl.lit("Tango").alias("Origen"))
-
-    df_tango = castear_columnas(df_tango)
-    df_tango = eliminar_guiones_tango(df_tango)
-
-    return df_tango
-
-
-def castear_columnas(tabla: pl.DataFrame) -> pl.DataFrame:
-    """Funcion encargada de indicar el tipo de data de cada columna de las tablas.
-
-    Args:
-        tabla (polars.DataFrame): Tabla a castear los valores de las columnas.
-
-    Returns:
-        polars.DataFrame: La tabla con los tipos de datos en las columnas correctos.
-
-    """
-    return tabla.select(
-        pl.col("CUIT").cast(pl.Utf8),
-        pl.col("Razón Social").cast(pl.Utf8),
-        pl.col("Importe").cast(pl.Float64),
-        pl.col("Número Comprobante").cast(pl.Utf8),
-        pl.col("Fecha Comprobante").cast(pl.Utf8),
-        pl.col("Origen").cast(pl.Utf8),
-    )
 
 
 def eliminar_guiones_tango(tabla: pl.DataFrame) -> pl.DataFrame:
@@ -194,24 +84,6 @@ def cuits_unicos_afip_tango(
     return lista_unicos
 
 
-def acortar_string(string: str) -> str:
-    """Funcion que acorta un string de largo mayor a 30 caracteres.
-    Si es recortado de se le agregan 3 puntos ("...") adelante.
-
-    Args:
-        string (str): Cadena a la cual se la operara.
-
-    Returns:
-        (str): La cadena procesada.
-
-    """
-    if len(string) < 30:
-        return string
-    else:
-        numero = len(string) - 30
-        return "..." + string[numero:]
-
-
 def fecha_para_carpeta(tabla_afip: pl.DataFrame) -> str:
     """Funcion que obtiene la fecha a partir de la tabla de AFIP. Retorna la fecha en formato AAAA/MM.
 
@@ -265,10 +137,6 @@ def checkear_importe_total(
     total_afip = _sumar_contenidos_lista(importes_afip)
     total_tango = _sumar_contenidos_lista(importes_tango)
 
-    print(importes_afip)
-    print(importes_tango)
-
-    print(total_afip == total_tango)
     return total_afip == total_tango
 
 
@@ -330,3 +198,63 @@ def _importes_tabla_por_cuit(tabla: pl.DataFrame, cuit: str) -> list:
         .get_column("Importe")
         .to_list()
     )
+
+
+def checkear_archivos(dataframes: list) -> bool:
+    """Funcion encargada de indicar si todas las rutas contenidas en una fila existen.
+
+    Args:
+        dataframes (list): Lista con las rutas de las planillas.
+
+    Returns:
+        bool: True si existen todos los archivos, False si uno o más archivos no existen.
+
+    """
+    existen = True
+    for ruta in dataframes:
+        if not os.path.exists(ruta):
+            existen = False
+            break
+
+    return existen
+
+
+def castear_columnas(tabla: pl.DataFrame) -> pl.DataFrame:
+    """Funcion encargada de indicar el tipo de data de cada columna de las tablas.
+
+    Args:
+        tabla (polars.DataFrame): Tabla a castear los valores de las columnas.
+
+    Returns:
+        polars.DataFrame: La tabla con los tipos de datos en las columnas correctos.
+
+    """
+    return tabla.select(
+        pl.col("CUIT").cast(pl.Utf8),
+        pl.col("Razón Social").cast(pl.Utf8),
+        pl.col("Importe").cast(pl.Float64),
+        pl.col("Número Comprobante").cast(pl.Utf8),
+        pl.col("Fecha Comprobante").cast(pl.Utf8),
+        pl.col("Origen").cast(pl.Utf8),
+    )
+
+
+def obtener_fecha_mas_reciente(tabla: pl.DataFrame) -> str:
+
+    fechas = (
+        tabla.select(["Fecha Comprobante"]).get_column("Fecha Comprobante").to_list()
+    )
+
+    fecha_split = fechas[0].split("/")
+    fecha_mayor = f"{fecha_split[2]}-{fecha_split[1]}"
+
+    for fecha in fechas:
+        fecha_split = fecha.split("/")
+        fecha_mayor_split = fecha_mayor.split("-")
+        if int(fecha_split[2]) > int(fecha_mayor_split[0]) or (
+            fecha_split[2] == fecha_mayor_split[0]
+            and fecha_split[1] > fecha_mayor_split[1]
+        ):
+            fecha_mayor = f"{fecha_split[2]}-{fecha_split[1]}"
+
+    return fecha_mayor
