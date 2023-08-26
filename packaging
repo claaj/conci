@@ -1,0 +1,1 @@
+poetry run flet pack conci/__main__.py --name conci --icon icon/icon.png
