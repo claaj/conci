@@ -1,10 +1,10 @@
 import os
 import flet as ft
 import polars as pl
-from conci.app._PaginaAcercaDe import PaginaAcercaDe
-from conci.app._PaginaAjustes import PaginaAjustes
-from conci.app._PaginaConciliar import PaginaConciliar
-from conci.app._TablaPlanillas import TablaPlanillas
+from _PaginaAcercaDe import PaginaAcercaDe
+from _PaginaAjustes import PaginaAjustes
+from _PaginaConciliar import PaginaConciliar
+from _TablaPlanillas import TablaPlanillas
 from conci.conciliar.utils import obtener_fecha_mas_reciente
 from conci.conciliar.conciliar import procesar
 

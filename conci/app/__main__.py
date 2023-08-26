@@ -1,5 +1,5 @@
 import flet as ft
-from conci.app import app
+import app
 
 
 def main():

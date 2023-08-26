@@ -1,5 +1,5 @@
 import flet as ft
-from conci.app._ElementoTabla import ElementoTabla
+from _ElementoTabla import ElementoTabla
 
 
 class TablaPlanillas(ft.UserControl):

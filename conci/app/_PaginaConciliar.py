@@ -1,5 +1,5 @@
 import flet as ft
-from conci.app.utils import acortar_string
+from utils import acortar_string
 
 
 class PaginaConciliar(ft.UserControl):
