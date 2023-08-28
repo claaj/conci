@@ -82,6 +82,17 @@ def main(page: ft.Page):
             ),
         )
 
+    def proceso_formato_error():
+        banner_mensaje(
+            "Planilla con formato incorrecto, no se puede procesar.",
+            ft.colors.RED_200,
+            ft.Icon(
+                ft.icons.ERROR_SHARP,
+                color=ft.colors.RED_600,
+                size=35,
+            ),
+        )
+
     def conciliar_percepciones():
         if (
             len(percep_afip.archivos) > 0
@@ -113,6 +124,9 @@ def main(page: ft.Page):
 
             except FileNotFoundError:
                 proceso_file_error()
+
+            except pl.exceptions.SchemaFieldNotFoundError:
+                proceso_formato_error()
 
         else:
             proceso_no_arranca()
@@ -149,6 +163,9 @@ def main(page: ft.Page):
 
             except FileNotFoundError:
                 proceso_file_error()
+
+            except pl.exceptions.SchemaFieldNotFoundError:
+                proceso_formato_error()
         else:
             proceso_no_arranca()
 
