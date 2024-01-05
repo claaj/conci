@@ -1,6 +1,8 @@
 # Conci 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 
+Este programa fue reimplementado en  [**Konci**](https://github.com/claaj/konci)
+
 Conci es un ayudante para conciliar retenciones y percepciones entre AFIP y Tango.
 
 ![Captura desde 2023-08-25 19-17-29](https://github.com/claaj/conci/assets/102485147/0fddc680-06a2-4f5d-a4ad-15c1561b7a6e)
